@@ -72,6 +72,7 @@ class AppWindow : public Window, public InputListener
 		bool m_camera_rotation = false;
 		Matrix4x4 m_world_cam;
 
+		
 		std::vector<Quad> quads;
 		std::vector<Cube> cubes;
 		std::vector<Plane> planes;

@@ -9,6 +9,7 @@
 #include "SceneCameraHolder.h"
 #include "ParticleSystem.h"
 
+// ImGui includes for UI rendering
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
@@ -16,6 +17,10 @@
 #include <cstdlib>
 #include <ctime>
 
+
+// ============================================================================
+// STRUCTURES AND CONSTANTS
+// ============================================================================
 
 __declspec(align(16))
 struct constant
@@ -25,6 +30,10 @@ struct constant
 	Matrix4x4 m_proj;
 	float m_angle;
 };
+
+// ============================================================================
+// SINGLETON PATTERN IMPLEMENTATION
+// ============================================================================
 
 AppWindow* AppWindow::sharedInstance = nullptr;
 
@@ -51,19 +60,31 @@ void AppWindow::destroy()
 		sharedInstance->release();
 }
 
+// ============================================================================
+// CONSTRUCTOR AND DESTRUCTOR
+// ============================================================================
+
 AppWindow::AppWindow()
 {
 
 }
 
+
+// ============================================================================
+// UPDATE AND ANIMATION LOGIC
+// ============================================================================
+
 void AppWindow::update()
 {
+	// Animation parameters
 	float GameSpeed = 1.57f; // Game speed multiplier (1.57f is the default.)
 	m_angle += GameSpeed * EngineTime::getDeltaTime();
+
+	// Setup constant buffer data
 	constant cc;
 	cc.m_angle = m_angle;
 
-
+	// Update animation deltas
 	m_delta_pos += EngineTime::getDeltaTime() / 10.0f;
 	if (m_delta_pos > 1.0f) m_delta_pos = 0.0f;
 	
@@ -105,15 +126,22 @@ void AppWindow::update()
 
 			world_cam.inverse();
 */
+
+
+			// Get view matrix from camera system
 			auto world_cam = SceneCameraHolder::getInstance()->getCamera()->getViewMatrix();
 			world_cam.inverse();
 			cc.m_view = world_cam;
 			//cc.m_view.setIdentity();
 
+
+			// Setup projection matrix
 			RECT rc = this->getClientWindowRect();
 			int width = rc.right - rc.left;
 			int height = rc.bottom - rc.top;
 
+
+			// Perspective projection setup
 			//cc.m_proj.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
 			cc.m_proj.setPerspectiveFovLH(1.57, (float)width / (float)height, 0.1f, 100.0f);
 
@@ -125,16 +153,19 @@ void AppWindow::update()
 
 	}
 
-
+// ============================================================================
+// GRAPHICS INITIALIZATION
+// ============================================================================
 
 void AppWindow::createGraphicsWindow()
 {
-	SceneCameraHolder::initialize();
-	//InputSystem::get()->addListener(this);
-	InputSystem::get()->showCursor(true);
 
+	// ---- SYSTEM INITIALIZATION ----
+	SceneCameraHolder::initialize();
+	InputSystem::get()->showCursor(true);
 	GraphicsEngine::initialize();
 
+	// ---- SWAP CHAIN SETUP ----
 	this->m_swap_chain = GraphicsEngine::get()->createSwapChain();
 	RECT rc = this->getClientWindowRect();
 	int width = rc.right - rc.left;
@@ -142,16 +173,22 @@ void AppWindow::createGraphicsWindow()
 	std::cout << "Window rect width: " << width << std::endl;
 	std::cout << "Window rect height: " << height << std::endl;
 
+
+	// Configure camera with window dimensions
 	SceneCameraHolder::getInstance()->getCamera()->height = height;
 	SceneCameraHolder::getInstance()->getCamera()->width = width;
 
+	// Initialize swap chain
 	this->m_swap_chain->init(this->m_hwnd, width, height);
 
+	// Set initial camera position
 	m_world_cam.setTranslation(Vector3D(0.0f, 0.0f, -2.0f), false);
 
+	// ---- SHADER COMPILATION ----
 	void* shader_byte_code = nullptr;
 	size_t size_shader = 0;
 
+	// Compile and create vertex shader
 	GraphicsEngine::get()->compileVertexShader(L"VertexShader.hlsl", "vsmain", &shader_byte_code, &size_shader);
 	this->m_vs = GraphicsEngine::get()->createVertexShader(shader_byte_code, size_shader);
 
@@ -242,8 +279,8 @@ void AppWindow::createGraphicsWindow()
 	
 
 
-
-	int preset = 0; // 0 for fog
+	// ---- PARTICLE SYSTEM SETUP ----
+	int preset = 0; // 0 for ashes
 	ParticleSystem::initialize();
 	Particle templateParticle = Particle();
 	if (preset == 0)
@@ -304,6 +341,10 @@ void AppWindow::createGraphicsWindow()
 
 }
 
+// ============================================================================
+// WINDOW EVENT HANDLERS
+// ============================================================================
+
 void AppWindow::onCreate()
 {
 	Window::onCreate();
@@ -311,10 +352,14 @@ void AppWindow::onCreate()
 
 void AppWindow::onUpdate()
 {
-	static float fog_start = 2.f;
-	static float fog_end = 10.0f;
-	static float fog_density = 0.1f;
 
+	// ---- FOG CONTROL VARIABLES ----
+	static float fog_start = 2.f;	// Distance where fog starts
+	static float fog_end = 10.0f;	// Distance where fog is fully opaque
+	static float fog_density = 0.1f;// Fog density factor
+
+
+	// ---- FOG CONTROLS ----
 	// Fog start distance controls
 	if (InputSystem::get()->isKeyDown('Z'))
 	{
@@ -346,11 +391,12 @@ void AppWindow::onUpdate()
 		fog_density += 0.001f;
 	}
 
+	// ---- IMGUI FRAME SETUP ----
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-
+	// Create information window
 	ImGui::Begin("Information");    
 	ImGui::Text("Fog Start: %.2f", fog_start);
 	ImGui::Text("Fog End: %.2f", fog_end);
@@ -358,10 +404,7 @@ void AppWindow::onUpdate()
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 
-
-
-
-
+	// ---- RENDERING SETUP ----
 	Window::onUpdate();             
 	InputSystem::get()->update(); 
 	//GraphicsEngine::get()->getDeviceContext()->clearRenderTargetColor(this->m_swap_chain, (float)(135.f/255.f), (float)(206.f /255.f), (float)(255.f /255.f), 1);
