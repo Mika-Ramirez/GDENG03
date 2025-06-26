@@ -17,6 +17,8 @@ class Cube : public GameObject
 		void setAnimSpeed(float speed);
 
 		void release();
+
+
 	
 	private:
 		VertexBuffer* vertexBuffer;
@@ -27,5 +29,9 @@ class Cube : public GameObject
 		float deltaScale = 0.0f;
 		float deltaTime = 0.0f;
 		float speed = 1.57f; //default is 1.57f for PardCode
+
+
+
+		 
 };
 

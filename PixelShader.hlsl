@@ -37,12 +37,6 @@ float4 psmain(PS_INPUT input) : SV_Target
 
         float fogFactor = (fogEnd - distance) / (fogEnd - fogStart);
 
-        //for exponential fog
-        //float fogFactor = exp(-distance * fogDensity);
-        
-        // for exponential squared fog
-        //float fogFactor = exp(-pow(fogDensity * distance, 2.0));
-
         fogFactor = saturate(fogFactor); // Clamp between 0 and 1
 
         float3 baseColor = input.color;
@@ -50,6 +44,5 @@ float4 psmain(PS_INPUT input) : SV_Target
         float3 finalColor = lerp(fogColor, baseColor, fogFactor);
 
         return float4(finalColor, 1.0f);
-        //return float4(input.color,1.0f);
-        //return float4(lerp(input.color, input.color1, (sin(m_angle) + 1.0f) / 2.0f),1.0f);
+
 }

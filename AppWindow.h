@@ -76,5 +76,11 @@ class AppWindow : public Window, public InputListener
 		std::vector<Quad> quads;
 		std::vector<Cube> cubes;
 		std::vector<Plane> planes;
+
+private:
+	// Add fog culling members
+	float m_fog_cull_distance = 25.0f;  // Distance at which objects are culled
+	bool m_fog_culling_enabled = true;   // Toggle for fog culling
+
 };
 

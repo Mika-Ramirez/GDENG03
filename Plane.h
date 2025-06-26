@@ -16,6 +16,7 @@ public:
 
 	void release();
 
+
 private:
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
@@ -25,4 +26,5 @@ private:
 	float deltaScale = 0.0f;
 	float deltaTime = 0.0f;
 	float speed = 1.57f; //default is 1.57f for PardCode
+
 };

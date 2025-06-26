@@ -87,71 +87,40 @@ void AppWindow::update()
 	// Update animation deltas
 	m_delta_pos += EngineTime::getDeltaTime() / 10.0f;
 	if (m_delta_pos > 1.0f) m_delta_pos = 0.0f;
-	
+
 
 	Matrix4x4 temp;
 
 	m_delta_scale += EngineTime::getDeltaTime() / 0.55f;
 
-	//cc.m_world.setScale(Vector3D::lerp(Vector3D(0.5, 0.5, 0), Vector3D(1, 1, 0), (sin(m_delta_scale) + 1.0f)/2.0f));
 
-	//temp.setTranslation(Vector3D::lerp(Vector3D(-1.5, -1.5, 0), Vector3D(1.5, 1.5, 0), m_delta_pos));
-	//cc.m_world *= temp;
-			
-	/*		cc.m_world.setScale(Vector3D(m_scale_cube));
-
-		    temp.setRotationZ(0.0f);
-			cc.m_world *= temp;
-			temp.setRotationY(m_rot_y);
-			cc.m_world *= temp;
-			temp.setRotationX(m_rot_x);
-			cc.m_world *= temp;
-	*/		
 
 	cc.m_world.setIdentity();
-	/*
-			Matrix4x4 world_cam;
-			world_cam.setIdentity();
-
-			temp.setRotationX(m_rot_x, true);
-			world_cam *= temp;
-			temp.setRotationY(m_rot_y, true);
-			world_cam *= temp;
-
-			Vector3D new_pos = m_world_cam.getTranslation() + m_world_cam.getZDirection() * (m_forward * 2.0f *EngineTime::getDeltaTime());
-			new_pos = new_pos + m_world_cam.getXDirection() * (m_rightward * 2.0f * EngineTime::getDeltaTime());
-			world_cam.setTranslation(new_pos, false);
-			
-			m_world_cam = world_cam;
-
-			world_cam.inverse();
-*/
 
 
-			// Get view matrix from camera system
-			auto world_cam = SceneCameraHolder::getInstance()->getCamera()->getViewMatrix();
-			world_cam.inverse();
-			cc.m_view = world_cam;
-			//cc.m_view.setIdentity();
-
-
-			// Setup projection matrix
-			RECT rc = this->getClientWindowRect();
-			int width = rc.right - rc.left;
-			int height = rc.bottom - rc.top;
-
-
-			// Perspective projection setup
-			//cc.m_proj.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
-			cc.m_proj.setPerspectiveFovLH(1.57, (float)width / (float)height, 0.1f, 100.0f);
+	// Get view matrix from camera system
+	auto world_cam = SceneCameraHolder::getInstance()->getCamera()->getViewMatrix();
+	world_cam.inverse();
+	cc.m_view = world_cam;
 
 
 
-			this->m_cb->update(GraphicsEngine::get()->getDeviceContext(), &cc);
-		
+	// Setup projection matrix
+	RECT rc = this->getClientWindowRect();
+	int width = rc.right - rc.left;
+	int height = rc.bottom - rc.top;
 
 
-	}
+	// Perspective projection setup
+	cc.m_proj.setPerspectiveFovLH(1.57, (float)width / (float)height, 0.1f, 100.0f);
+
+
+
+	this->m_cb->update(GraphicsEngine::get()->getDeviceContext(), &cc);
+
+
+
+}
 
 // ============================================================================
 // GRAPHICS INITIALIZATION
@@ -192,92 +161,111 @@ void AppWindow::createGraphicsWindow()
 	GraphicsEngine::get()->compileVertexShader(L"VertexShader.hlsl", "vsmain", &shader_byte_code, &size_shader);
 	this->m_vs = GraphicsEngine::get()->createVertexShader(shader_byte_code, size_shader);
 
-	/*	vertex vertex_list[] =
-	{//    X     Y     Z
-		//Rainbow
-		{ Vector3D(-0.5f, -0.5f, -0.5f) , Vector3D(1,0,0),  Vector3D(1,0,0)},
-		{ Vector3D(-0.5f, 0.5f, -0.5f) ,   Vector3D(1,1,0),   Vector3D(1,1,0) },
-		{ Vector3D(0.5f, 0.5f, -0.5f) ,  Vector3D(1,1,0), Vector3D(1,1,0) },
-		{ Vector3D(0.5f, -0.5f, -0.5f),  Vector3D(1,0,0),    Vector3D(1,0,0)},
-
-		{ Vector3D(0.5f, -0.5f, 0.5f) ,   Vector3D(0,1,0), Vector3D(0,1,0)},
-		{ Vector3D(0.5f, 0.5f, 0.5f) ,   Vector3D(0,1,0),  Vector3D(0,1,0) },
-		{ Vector3D(-0.5f, 0.5f, 0.5f) , Vector3D(0,1,1),   Vector3D(0,1,1) },
-		{ Vector3D(-0.5f, -0.5f, 0.5f),  Vector3D(0,1,0),   Vector3D(0,1,1)}
-	};
-
-	this->m_vb = GraphicsEngine::get()->createVertexBuffer();
-	UINT size_list = ARRAYSIZE(vertex_list);
-
-	unsigned int index_list[] =
-	{
-		0, 1, 2,
-		2, 3, 0,
-		4, 5, 6,
-		6, 7, 4,
-		1, 6, 5,
-		5, 2, 1,
-		7, 0, 3,
-		3, 4, 7,
-		3, 2, 5,
-		5, 4, 3,
-		7, 6, 1,
-		1, 0, 7
-	};
-
-
-
-	this->m_ib = GraphicsEngine::get()->createIndexBuffer();
-	UINT size_index_list = ARRAYSIZE(index_list);
-
-	constant cc;
-	cc.m_angle = 0;
-	m_cb = GraphicsEngine::get()->createConstantBuffer();
-
-	this->m_ib->load(index_list, size_index_list);
-	this->m_vb->load(vertex_list, sizeof(vertex), size_list, shader_byte_code, size_shader);
-	this->m_cb->load(&cc, sizeof(constant));*/
 
 	srand(time(0));
 
-	//For #4, Spawning 50 different cubes.
-	
-		for (int i = 0; i < 50; i++)
+	//For #4, Spawning 100 different cubes with much wider distribution and varied sizes
+	for (int i = 0; i < 100; i++)
 	{
 		Cube cube("Test", shader_byte_code, size_shader);
-		cube.setScale(Vector3D(0.4f));
-		cube.setPosition(Vector3D((rand() % (int)(100 * 5.0f) - (int)(50 * 5.0f)) * 0.01f,
-			(rand() % (int)(100 * 5.0f) - (int)(50 * 5.0f)) * 0.01f,
-			5 + (rand() % (int)(151 * 5.0f) - (int)(1 * 5.0f)) * 0.01f));
+
+		// Create more reasonable varied cube sizes
+		float sizeCategory = rand() % 4;
+		float scale;
+		switch ((int)sizeCategory)
+		{
+		case 0: // Small cubes
+			scale = 0.2f + (rand() % 20) * 0.01f; // 0.2 to 0.4
+			break;
+		case 1: // Medium-small cubes  
+			scale = 0.4f + (rand() % 30) * 0.01f; // 0.4 to 0.7
+			break;
+		case 2: // Medium cubes
+			scale = 0.7f + (rand() % 30) * 0.01f; // 0.7 to 1.0
+			break;
+		case 3: // Large cubes
+			scale = 1.0f + (rand() % 30) * 0.01f; // 1.0 to 1.3
+			break;
+		}
+
+		// Sometimes create non-uniform scaling for rectangular shapes
+		if (rand() % 5 == 0) // 20% chance (reduced from 25%)
+		{
+			float scaleX = scale * (0.6f + (rand() % 80) * 0.01f); // 0.6x to 1.4x the base scale
+			float scaleY = scale * (0.6f + (rand() % 80) * 0.01f);
+			float scaleZ = scale * (0.6f + (rand() % 80) * 0.01f);
+			cube.setScale(Vector3D(scaleX, scaleY, scaleZ));
+		}
+		else
+		{
+			cube.setScale(Vector3D(scale)); // Uniform scaling
+		}
+
+		float x = (rand() % (int)(100 * 15.0f) - (int)(50 * 15.0f)) * 0.01f; // -15 to 15
+		float y = (rand() % (int)(100 * 10.0f) - (int)(50 * 10.0f)) * 0.01f; // -10 to 10
+		float z = (rand() % (int)(100 * 30.0f) - (int)(5 * 100)) * 0.01f;    // -5 to 25
+
+		cube.setPosition(Vector3D(x, y, z));
 		this->cubes.push_back(cube);
 	}
-	
+
+	// Additional layer of cubes at different depths with moderate size variations
+	for (int i = 0; i < 30; i++)
+	{
+		Cube cube("Far", shader_byte_code, size_shader);
+
+		// Create reasonably sized cubes for the far distance
+		float scale = 0.6f + (rand() % 80) * 0.01f; 
+
+		// 20% chance for larger cubes in the distance (reduced from 30%)
+		if (rand() % 10 < 2)
+		{
+			scale = 1.4f + (rand() % 60) * 0.01f; // 1.4 to 2.0 - large but not massive
+		}
+
+		// Sometimes create rectangular shapes (reduced frequency and extremes)
+		if (rand() % 4 == 0) // 25% chance
+		{
+			float scaleX = scale * (0.5f + (rand() % 100) * 0.01f);
+			float scaleY = scale * (0.8f + (rand() % 80) * 0.01f);  
+			float scaleZ = scale * (0.5f + (rand() % 100) * 0.01f); 
+			cube.setScale(Vector3D(scaleX, scaleY, scaleZ));
+		}
+		else
+		{
+			cube.setScale(Vector3D(scale));
+		}
+
+		// Far layer: Z from 20 to 40
+		float x = (rand() % (int)(100 * 20.0f) - (int)(50 * 20.0f)) * 0.01f; // -20 to 20
+		float y = (rand() % (int)(100 * 15.0f) - (int)(50 * 15.0f)) * 0.01f; // -15 to 15
+		float z = 20.0f + (rand() % (int)(100 * 20.0f)) * 0.01f;              // 20 to 40
+
+		cube.setPosition(Vector3D(x, y, z));
+		this->cubes.push_back(cube);
+	}
 
 
-	//For #6, Scene Replication
-	
-	Cube cube("Test", Vector3D(1,0,0), shader_byte_code, size_shader);
-	cube.setPosition(Vector3D(0.0f, 0.9f, 0.0f));
-	this->cubes.push_back(cube);
-	Cube cube1("Test2", Vector3D(0,1,0), shader_byte_code, size_shader);
-	cube1.setPosition(Vector3D(-1.5f, 2.0f, 0.0f));
-	this->cubes.push_back(cube1);
-	Cube cube2("Test3", Vector3D(0,0,1), shader_byte_code, size_shader);
-	cube2.setPosition(Vector3D(-1.5f, 3.0f, -2.0f));
-	this->cubes.push_back(cube2);
-
-
-
-
-	Plane plane("Test4", shader_byte_code, size_shader);
-	plane.setScale(Vector3D(7.5f, 1.0f, 7.5f));
-	plane.setPosition(Vector3D(0.0f, -1.f, 0.0f));
-	plane.setRotation(Vector3D(0.f,0.0f,0.0f));
+	// Main ground plane - much larger for better depth testing
+	Plane plane("Ground", shader_byte_code, size_shader);
+	plane.setScale(Vector3D(50.0f, 1.0f, 50.0f)); // Much larger plane: 50x50 units
+	plane.setPosition(Vector3D(0.0f, -2.0f, 0.0f)); // Lowered slightly
+	plane.setRotation(Vector3D(0.f, 0.0f, 0.0f));
 	this->planes.push_back(plane);
-	
 
-	
+	// Additional elevated platform for more depth complexity
+	Plane plane2("Platform", shader_byte_code, size_shader);
+	plane2.setScale(Vector3D(15.0f, 1.0f, 15.0f));
+	plane2.setPosition(Vector3D(10.0f, 5.0f, 15.0f));
+	plane2.setRotation(Vector3D(0.f, 0.0f, 0.0f));
+	this->planes.push_back(plane2);
 
+	// Vertical wall plane for depth testing
+	Plane wall("Wall", shader_byte_code, size_shader);
+	wall.setScale(Vector3D(30.0f, 20.0f, 1.0f));
+	wall.setPosition(Vector3D(0.0f, 5.0f, 30.0f));
+	wall.setRotation(Vector3D(1.57f, 0.0f, 0.0f)); // Rotate 90 degrees to make it vertical
+	this->planes.push_back(wall);
 
 	// ---- PARTICLE SYSTEM SETUP ----
 	int preset = 0; // 0 for ashes
@@ -309,7 +297,7 @@ void AppWindow::createGraphicsWindow()
 	}
 	else if (preset == 2)
 	{
-		ParticleSystem::getInstance()->interval= 0.001f;
+		ParticleSystem::getInstance()->interval = 0.001f;
 		ParticleSystem::getInstance()->max_size = 2000;
 		ParticleSystem::getInstance()->spawnAreaWidth = 1.80f;
 		ParticleSystem::getInstance()->spawnAreaHeight = 1.80f;
@@ -321,7 +309,7 @@ void AppWindow::createGraphicsWindow()
 		ParticleSystem::getInstance()->particleMovementRandom = true;
 	}
 
-	ParticleSystem::getInstance()->Create(templateParticle,&shader_byte_code, &size_shader);
+	ParticleSystem::getInstance()->Create(templateParticle, &shader_byte_code, &size_shader);
 
 
 	GraphicsEngine::get()->releaseCompiledShader();
@@ -352,43 +340,38 @@ void AppWindow::onCreate()
 
 void AppWindow::onUpdate()
 {
-
 	// ---- FOG CONTROL VARIABLES ----
-	static float fog_start = 2.f;	// Distance where fog starts
-	static float fog_end = 10.0f;	// Distance where fog is fully opaque
-	static float fog_density = 0.1f;// Fog density factor
+	static float fog_start = 5.f;	// Increased for larger scene
+	static float fog_end = 30.0f;	// Increased for larger scene
+	static float fog_density = 0.05f; // Reduced for better visibility
 
-
-	// ---- FOG CONTROLS ----
-	// Fog start distance controls
+	// ---- FOG CONTROLS ---- 
 	if (InputSystem::get()->isKeyDown('Z'))
 	{
-		fog_start = max(0.0f, fog_start - 0.1f);
+		fog_start = max(0.0f, fog_start - 0.2f);
 	}
 	if (InputSystem::get()->isKeyDown('C'))
 	{
-		fog_start += 0.1f;
-		fog_start = min(fog_start, fog_end - 0.1f); // Ensure fog start is less than fog end)
+		fog_start += 0.2f;
+		fog_start = min(fog_start, fog_end - 0.1f);
 	}
 
-	// Fog end distance controls
 	if (InputSystem::get()->isKeyDown('V'))
 	{
-		fog_end = max(fog_start + 0.1f, fog_end - 0.1f);
+		fog_end = max(fog_start + 0.1f, fog_end - 0.2f);
 	}
 	if (InputSystem::get()->isKeyDown('B'))
 	{
-		fog_end += 0.1f;
+		fog_end += 0.2f;
 	}
 
-	// Fog density controls
 	if (InputSystem::get()->isKeyDown('N'))
 	{
-		fog_density = max(0.001f, fog_density - 0.001f);
+		fog_density = max(0.001f, fog_density - 0.002f);
 	}
 	if (InputSystem::get()->isKeyDown('M'))
 	{
-		fog_density += 0.001f;
+		fog_density += 0.002f;
 	}
 
 	// ---- IMGUI FRAME SETUP ----
@@ -396,23 +379,128 @@ void AppWindow::onUpdate()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	// Create information window
-	ImGui::Begin("Information");    
-	ImGui::Text("Fog Start: %.2f", fog_start);
-	ImGui::Text("Fog End: %.2f", fog_end);
-	ImGui::Text("Fog Density: %.3f", fog_density);
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	// === ENHANCED IMGUI INTERFACE ===
+
+	// Main Control Panel
+	ImGui::Begin("Engine Control Panel", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+	// Performance Metrics Section
+	if (ImGui::CollapsingHeader("Performance Metrics", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		float framerate = ImGui::GetIO().Framerate;
+		float frametime = 1000.0f / framerate;
+
+		ImGui::Text("FPS: %.1f", framerate);
+		ImGui::SameLine();
+		if (framerate < 30.0f)
+			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "(Low)");
+		else if (framerate < 60.0f)
+			ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "(Medium)");
+		else
+			ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "(Good)");
+
+		ImGui::Text("Frame Time: %.3f ms", frametime);
+
+		// FPS Graph
+		static float fps_history[120] = {};
+		static int fps_history_offset = 0;
+		fps_history[fps_history_offset] = framerate;
+		fps_history_offset = (fps_history_offset + 1) % 120;
+
+		ImGui::PlotLines("FPS", fps_history, 120, fps_history_offset, nullptr, 0.0f, 120.0f, ImVec2(0, 80));
+	}
+
+	// Scene Information Section
+	if (ImGui::CollapsingHeader("Scene Information", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("Total Objects: %d", (int)(cubes.size() + planes.size()));
+		ImGui::Indent();
+		ImGui::Text("Cubes: %d", (int)cubes.size());
+		ImGui::Text("Planes: %d", (int)planes.size());
+		ImGui::Text("Particles: %d", ParticleSystem::getInstance()->getParticleAmount());
+		ImGui::Unindent();
+
+		// Camera information
+		Vector3D cam_pos = SceneCameraHolder::getInstance()->getCamera()->getLocalPosition();
+		ImGui::Text("Camera Position:");
+		ImGui::Indent();
+		ImGui::Text("X: %.2f, Y: %.2f, Z: %.2f", cam_pos.x, cam_pos.y, cam_pos.z);
+		ImGui::Unindent();
+	}
+
+	// Fog Controls Section 
+	if (ImGui::CollapsingHeader("Fog Settings", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("Current Fog Settings:");
+		ImGui::Indent();
+		ImGui::Text("Start Distance: %.2f", fog_start);
+		ImGui::Text("End Distance: %.2f", fog_end);
+		ImGui::Text("Density: %.3f", fog_density);
+		ImGui::Unindent();
+
+		ImGui::Separator();
+		ImGui::Text("Fog Controls:");
+		ImGui::BulletText("Z/C - Adjust fog start distance");
+		ImGui::BulletText("V/B - Adjust fog end distance");
+		ImGui::BulletText("N/M - Adjust fog density");
+	}
+
+	ImGui::End();
+
+	// Camera Controls Window
+	ImGui::Begin("Camera Controls");
+
+	if (ImGui::CollapsingHeader("Movement Controls", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("Keyboard Controls:");
+		ImGui::BulletText("WASD - Move camera");
+		ImGui::BulletText("Mouse - Look around (when focused)");
+		ImGui::BulletText("ESC - Exit application");
+
+	}
+
+	ImGui::End();
+
+
+
+	// Mini Statistics Overlay (always visible)
+	ImGuiWindowFlags overlay_flags = ImGuiWindowFlags_NoDecoration |
+		ImGuiWindowFlags_AlwaysAutoResize |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoFocusOnAppearing |
+		ImGuiWindowFlags_NoNav;
+
+	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
+	ImGui::SetNextWindowBgAlpha(0.35f);
+
+	if (ImGui::Begin("Overlay", nullptr, overlay_flags))
+	{
+		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+		ImGui::Text("Objects: %d", (int)(cubes.size() + planes.size()));
+		ImGui::Text("Particles: %d", ParticleSystem::getInstance()->getParticleAmount());
+
+		// Color-coded performance indicator
+		float fps = ImGui::GetIO().Framerate;
+		if (fps < 30.0f)
+			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Performance: LOW");
+		else if (fps < 60.0f)
+			ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Performance: MEDIUM");
+		else
+			ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Performance: GOOD");
+	}
 	ImGui::End();
 
 	// ---- RENDERING SETUP ----
-	Window::onUpdate();             
-	InputSystem::get()->update(); 
-	//GraphicsEngine::get()->getDeviceContext()->clearRenderTargetColor(this->m_swap_chain, (float)(135.f/255.f), (float)(206.f /255.f), (float)(255.f /255.f), 1);
-	
-	//For Fog
-	GraphicsEngine::get()->getDeviceContext()->clearRenderTargetColor(this->m_swap_chain, (float)(0.6f), (float)(0.6f), (float)(0.6f), 1);
+	Window::onUpdate();
+	InputSystem::get()->update();
+	//GraphicsEngine::get()->getDeviceContext()->clearRenderTargetColor(this->m_swap_chain,
+	//	(float)(0.6f), (float)(0.6f), (float)(0.6f), 1);
+
+
+
+
 	//Toggle this to make it possible to see the objects obscured by the fog
-	//GraphicsEngine::get()->getDeviceContext()->clearRenderTargetColor(this->m_swap_chain, (float)(0.65f), (float)(0.65f), (float)(0.65f), 1);
+	GraphicsEngine::get()->getDeviceContext()->clearRenderTargetColor(this->m_swap_chain, (float)(0.65f), (float)(0.65f), (float)(0.65f), 1);
 
 
 	RECT rc = this->getClientWindowRect();
@@ -432,7 +520,7 @@ void AppWindow::onUpdate()
 
 
 	GraphicsEngine::get()->getDeviceContext()->setVertexBuffer(this->m_vb);
-	GraphicsEngine::get()->getDeviceContext()->setIndexBuffer(this->m_ib); 
+	GraphicsEngine::get()->getDeviceContext()->setIndexBuffer(this->m_ib);
 	//Cube:
 	GraphicsEngine::get()->getDeviceContext()->drawIndexedTriangleList(this->m_ib->getSizeIndexList(), 0, 0);*/
 
@@ -440,12 +528,12 @@ void AppWindow::onUpdate()
 	for (int i = 0; i < quads.size(); i++)
 		this->quads[i].draw(width, height, this->m_vs, this->m_ps);
 
-	for(int i = 0 ; i < cubes.size(); i++)
+	for (int i = 0; i < cubes.size(); i++)
 		this->cubes[i].draw(width, height, this->m_vs, this->m_ps);
 
 	for (int i = 0; i < planes.size(); i++)
 		this->planes[i].draw(width, height, this->m_vs, this->m_ps);
-	
+
 	//Makes it so the particles are drawn on top of everything else.
 	GraphicsEngine::get()->getDeviceContext()->getDeviceContext()->
 		ClearDepthStencilView(nullptr, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -458,7 +546,7 @@ void AppWindow::onUpdate()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	
+
 	m_swap_chain->present(false);
 
 	if (InputSystem::get()->isKeyDown(VK_ESCAPE))
@@ -493,13 +581,13 @@ void AppWindow::onDestroy()
 
 	for (int i = 0; i < quads.size(); i++)
 		quads[i].Release();
-	
+
 	for (int i = 0; i < cubes.size(); i++)
 		cubes[i].release();
-	
+
 	for (int i = 0; i < planes.size(); i++)
 		planes[i].release();
-	
+
 
 	ParticleSystem::destroy();
 }
@@ -520,19 +608,19 @@ void AppWindow::onKeyDown(int key)
 {
 	if (key == 'W')
 		m_forward = 1.0f;
-		//m_rot_x += 3.14f * EngineTime::getDeltaTime();
+	//m_rot_x += 3.14f * EngineTime::getDeltaTime();
 	else if (key == 'S')
 		m_forward = -1.0f;
-		//m_rot_x -= 3.14f * EngineTime::getDeltaTime();
+	//m_rot_x -= 3.14f * EngineTime::getDeltaTime();
 
 	if (key == 'A')
 		m_rightward = -1.0f;
-		//m_rot_y -= 3.14f * EngineTime::getDeltaTime();
+	//m_rot_y -= 3.14f * EngineTime::getDeltaTime();
 	else if (key == 'D')
 		m_rightward = 1.0f;
-		//m_rot_y += 3.14f * EngineTime::getDeltaTime();
+	//m_rot_y += 3.14f * EngineTime::getDeltaTime();
 
-	
+
 
 }
 void AppWindow::onKeyUp(int key)
@@ -554,7 +642,7 @@ void AppWindow::onMouseMove(const Point& mouse_pos)
 		InputSystem::get()->setCursorPositon(Point(width / 2.0f, height / 2.0f)); // Reset cursor position to center of the window
 	}
 
-	
+
 }
 
 void AppWindow::onLeftMouseDown(const Point& mouse_pos)
@@ -582,3 +670,4 @@ AppWindow::~AppWindow()
 {
 
 }
+
